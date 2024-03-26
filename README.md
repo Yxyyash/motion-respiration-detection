@@ -6,7 +6,7 @@
 
 ## Description
 
-A demonstration for calculating human respiration rate using y-axis shoulder motion using React as the frontend adn Flask as the backend.
+A demonstration for calculating human respiration rate using y-axis shoulder motion using React as the frontend and Flask as the backend.
 
 ## Table of Contents
 
@@ -16,34 +16,50 @@ A demonstration for calculating human respiration rate using y-axis shoulder mot
 
 ## Installation
 
-Provide step-by-step instructions on how to install and set up your project locally. Include any prerequisites or dependencies needed.
+In order to run the app frontend, you need to have node.js and npm installed in your hardware if you haven't, to install open cmd and run:
 
 ```bash
-git clone https://github.com/username/repository.git
-cd repository
+npm install -g npm
+```
+
+Afterwards, download the files in this repo or clone my project, to do this navigate to your preferred file path then in the cmd then run:
+
+```bash
+git clone https://github.com/Yxyyash/motion-respiration-detection.git
+```
+
+Then, to install the required libraries for the frontend files you can open cmd and run:
+
+```bash
+cd motion-respiration-detection/frontend
 npm install
+```
+Then you're done for the frontend! Next for the backend to run you will need to have Python installed, to download access visit the official Python website at [https://www.python.org/](#https://www.python.org/). Go to the Downloads section and download the latest version of Python for Windows/Linux/Mac. Skip this step if you're already have Python installed.
+
+Then to install the required libraries for backend, open cmd and run:
+
+```bash
+cd motion-respiration-detection/backend
+pip install . # or pip install facial-analysis-app
 ```
 
 ## Usage
 
-Explain how to use your project. Provide examples, code snippets, or screenshots if applicable.
+To use the app, you will need to run the react web server and flask backend file simultaneously in their separate terminals.
+
+First, navigate to the "frontend" folder and start the web server:
 
 ```bash
 npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Second, navigate to the "backend" folder and start the flask server:
 
-## Contributing
+```bash
+py app.py
+```
 
-If you'd like to contribute to this project, please follow these guidelines:
-
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature`)
-3. Make your changes
-4. Commit your changes (`git commit -am 'Add new feature'`)
-5. Push to the branch (`git push origin feature`)
-6. Create a new Pull Request
+Finally, you can open [http://localhost:3000](http://localhost:3000) to view it in the browser and try out the app.
 
 ## License
 
