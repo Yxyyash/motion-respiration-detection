@@ -40,7 +40,7 @@ Then to install the required libraries for backend, open cmd and run:
 
 ```bash
 cd motion-respiration-detection/backend
-pip install . # or pip install facial-analysis-app
+pip install . # or pip install motion-flask
 ```
 
 ## Usage
