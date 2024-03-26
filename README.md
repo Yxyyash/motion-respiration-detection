@@ -22,7 +22,3 @@ Provide step-by-step instructions on how to install and set up your project loca
 git https://github.com/Yxyyash/motion-respiration-detection.git
 cd repository
 npm install
-
-## Usage
-
-## License
