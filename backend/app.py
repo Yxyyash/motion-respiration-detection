@@ -1,15 +1,17 @@
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
-from werkzeug.utils import secure_filename
+import datetime as dt
 import os
-import cv2
-import numpy as np
-import dlib
 import time
-from scipy import signal
+
+import cv2
+import dlib
 import matplotlib.pyplot as plt
+import numpy as np
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
+from scipy import signal
 from scipy.interpolate import interp1d
 from scipy.signal import find_peaks
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 CORS(app)
@@ -20,15 +22,15 @@ BREATH_SIGNAL_PLOT_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file_
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['BREATH_SIGNAL_PLOT_FOLDER'] = BREATH_SIGNAL_PLOT_FOLDER
 
-threshold = [0.1]
+threshold = [0.005]
 width = [0]
 
 def find_peak(signal):
     peaks, _ = find_peaks(signal, prominence=threshold, width=width)
-    return len(peaks)
+    return len(peaks), peaks
 
 def save_peak_count_to_file(timestamp, peak_count):
-    filename = f"breath_signal_plot_{timestamp}.txt"
+    filename = f"{timestamp}-breath_signal_plot.txt"
     filepath = os.path.join(BREATH_SIGNAL_PLOT_FOLDER, filename)
     with open(filepath, 'w') as file:
         file.write(str(peak_count))
@@ -94,6 +96,7 @@ def count_frames(video_path):
 def list_files():
     try:
         files = os.listdir(app.config['UPLOAD_FOLDER'])
+        files = sorted(files, key=lambda x: dt.datetime.strptime(x.split('-')[0], "%Y%m%d_%H%M%S"), reverse=False)
         return jsonify(files)
     except Exception as e:
         print('Error reading upload directory:', str(e))
@@ -102,7 +105,7 @@ def list_files():
 @app.route('/uploads', methods=['POST'])
 def upload_file():
     try:
-        timestamp = int(time.time())
+        timestamp = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
         video = request.files['video']
         filename = f"{timestamp}-{secure_filename(video.filename)}"
         video_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -203,17 +206,11 @@ def upload_file():
         process_mov_point = np.array(track_point_movement)
         process_mov_point = filter_and_average_movement(process_mov_point)
 
-        b, a = signal.butter(3, [0.1, 0.45], btype='bandpass', fs=30)
+        b, a = signal.butter(3, [0.05, 0.3], btype='bandpass', fs=30)
         process_mov_point = np.insert(process_mov_point, 0, process_mov_point[0])
         process_mov_point = signal.filtfilt(b, a, process_mov_point)
 
-        # Integrate peak detection
-        pake = find_peak(process_mov_point)
-        apex = pake*3
 
-        # Save peak count to a text file
-        filename = save_peak_count_to_file(timestamp, apex)
-        print("Text Filename:", filename)
 
         # Calculate time intervals
         total_time = 20  # seconds
@@ -240,6 +237,14 @@ def upload_file():
 
         # Generate interpolated process_mov_point
         interpolated_mov_point = interp_func(frame_numbers)
+        
+        # Integrate peak detection
+        pake, peakloc = find_peak(interpolated_mov_point)
+        apex = pake*3
+
+        # Save peak count to a text file
+        filename = save_peak_count_to_file(timestamp, apex)
+        print("Text Filename:", filename)
 
         plt.figure(figsize=(8, 5), facecolor=(0, 0, 0, 0.6))
         plt.plot(frame_numbers, interpolated_mov_point, color='red')
@@ -251,12 +256,12 @@ def upload_file():
         plt.gca().set_facecolor((0, 0, 0, 0.4))
 
         # Plot the detected peaks as red dots
-        plt.plot(pake, interpolated_mov_point[pake], 'bo') 
+        plt.plot(peakloc, interpolated_mov_point[peakloc], 'bo') 
 
         # Set x-axis ticks to represent time
         plt.xticks(np.arange(0, num_frames + 1, frame_rate), np.arange(0, total_time + 1, total_time/20).astype(int))
 
-        breath_signal_plot_filename = f"breath_signal_plot_{timestamp}.png"
+        breath_signal_plot_filename = f"{timestamp}-breath_signal_plot.png"
         breath_signal_plot_path = os.path.join(app.config['BREATH_SIGNAL_PLOT_FOLDER'], breath_signal_plot_filename)
         plt.savefig(breath_signal_plot_path)
         plt.close()
@@ -281,6 +286,8 @@ def breath_signal_plot(filename):
 @app.route('/plot')
 def breath_signal_plots():
     plot_files = os.listdir(app.config['BREATH_SIGNAL_PLOT_FOLDER'])
+    plot_files = sorted(plot_files, key=lambda x: dt.datetime.strptime(x.split('-')[0], "%Y%m%d_%H%M%S"), reverse=False)
+    print(f"Sorted files: {plot_files}")
     return jsonify(plot_files) if request.headers.get('Content-Type') == 'application/json' else jsonify(plot_files)
 
 app.run(port=4000)
