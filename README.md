@@ -16,11 +16,7 @@ A demonstration for calculating human respiration rate using y-axis shoulder mot
 
 ## Installation
 
-In order to run the app frontend, you need to have node.js and npm installed in your hardware if you haven't, to install open cmd and run:
-
-```bash
-npm install -g npm
-```
+In order to run the app frontend, you need to have node.js and npm installed in your hardware if you haven't, to do this you will need to download and install Node.js from the official website: https://nodejs.org/. Follow the installation instructions for your operating system.
 
 Afterwards, download the files in this repo or clone my project, to do this navigate to your preferred file path then in the cmd then run:
 
