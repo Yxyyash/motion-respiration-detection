@@ -238,6 +238,9 @@ def upload_file():
         # Generate interpolated process_mov_point
         interpolated_mov_point = interp_func(frame_numbers)
         
+        # normalize to 0-1
+        interpolated_mov_point = (interpolated_mov_point - np.min(interpolated_mov_point)) / (np.max(interpolated_mov_point) - np.min(interpolated_mov_point))
+        
         # Integrate peak detection
         pake, peakloc = find_peak(interpolated_mov_point)
         apex = pake*3
